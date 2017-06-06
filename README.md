@@ -23,10 +23,15 @@ Go into Visual and refresh the quote.\nThe rates and prices will be updated and 
 Shortcut keys:
 
 Ctrl+R: Recalculate
+
 Ctrl+U: Update
+
 F2: Reset
+
 Esc: Close Message
+
 Ctrl+H: Help
+
 Alt+Q: Quit
 
 Built by Michael Connell using the python programming language©2017
