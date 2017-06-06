@@ -12,6 +12,7 @@ def main():
 	master = tk.Tk()
 	background = 'azure2'
 	font = "Helvetica 10 bold underline"
+
 	#Labels for GUI
 	tk.Label(master, text="Quote Number", background=background, font = font).grid(row=0)
 	tk.Label(master, text="Purchased Material %", background=background, font = font).grid(row=10)
@@ -26,18 +27,19 @@ def main():
 	menubar.add_command(label="Recalculate", command=combinedRecalc)
 	menubar.add_command(label="Reset", command=resetFromMenu)
 	menubar.add_command(label="Help", command=helpDoc)
+	menubar.add_command(label="Restart", command=restart)
 	menubar.add_command(label="Quit", command=master.quit)
 	master.bind('<Escape>', close)
 	master.bind('<F2>', resetFromMenu)
 	master.bind('<Control-r>', combinedRecalc)
-	master.bind('<Control-u>', combinedUpdate)
+	master.bind('<Control-u>', combinedUpdate)			
 	master.bind('<Control-h>', helpDoc)
 	master.bind('<Control-R>', combinedRecalc)
 	master.bind('<Control-U>', combinedUpdate)			
 	master.bind('<Control-H>', helpDoc)
 	master.config(menu=menubar)
 	master.title("Update Quote Rates")
-	master.minsize(width=250, height=100)
+	master.minsize(width=350, height=100)
 	master.configure(background=background)
 
 	#Entry boxes
@@ -302,7 +304,10 @@ def logIn(event=None):
 		msg = tk.Message(top, text="Incorrect Username or Password", width=750)
 		msg.grid(row=0, column=1)
 		return
-	
+
+def restart():
+	master.destroy()
+	security()
 
 def security():
 	global root
