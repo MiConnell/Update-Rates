@@ -241,7 +241,7 @@ def helpDoc(event=None):
 					\n\nOnce you have updated and recalculated, you are all done. There is no need to save anything.\
 					\nGo into Visual and refresh the quote.\nThe rates and prices will be updated and rounded to the nearest whole dollar.\
 					\n\nShortcut keys:\n\nCtrl+R: Recalculate\nCtrl+U: Update\nF2: Reset\nEsc: Close Message\nCtrl+H: Help\nAlt+Q: Quit\
-					\n\nBuilt by Michael Connell using the python programming language\n©" + year,
+					\n\nBuilt by Michael Connell using the python programming language \nSouce code and more documentation can be found at https://github.com/MiConnell/Update-Rates\n©" + year,
 					width=750
 							)
 	msg.pack()
