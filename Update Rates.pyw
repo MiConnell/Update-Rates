@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+#imports
 import datetime
 import pandas as pd
 import pandas.io.sql
@@ -5,9 +8,58 @@ import pymssql
 import _mssql
 import tkinter as tk
 
+#used to update copyright info with current year
 now = datetime.datetime.now()
 year = str(now.year)
 
+#connect to the database
+conn = pymssql.connect(
+    host=r"host",
+    user=r"user",
+    password="password",
+    database="database"
+)
+cursor = conn.cursor()
+
+#build log in popup for security
+def security():
+	global root
+	root = tk.Tk()
+	background = 'azure2'
+	font = "ISOCPEUR 10"
+	global en2
+	en2 = tk.Entry(root)
+	en2.grid(row=1, column=1, sticky="NSEW", padx=2, pady=2)
+	en2.focus_set()
+	global en3
+	en3 = tk.Entry(root)
+	en3.grid(row=2, column=1, sticky="NSEW", padx=2, pady=2)
+	en3.config(show="*")
+	tk.Label(root, text="User", background=background, font = font).grid(row=1)
+	tk.Label(root, text="Password", background=background, font = font).grid(row=2)
+	tk.Button(root, text='Log in', command=logIn).grid(row=5, column=1)
+	root.bind('<Return>', logIn)
+	root.bind('<Escape>', close)
+	root.title("Log In")
+	root.configure(background=background)
+	root.mainloop()
+
+#pseudo login to prevent unwanted users from entering
+def logIn(event=None):
+	usernames = []
+	passwords = []
+	if en2.get() in usernames and en3.get() in passwords:
+		main()
+		root.destroy()
+	else:
+		global top
+		top = tk.Toplevel(root)
+		top.title('Error')
+		msg = tk.Message(top, text="Incorrect Username or Password", width=750, font="ISOCPEUR 10")
+		msg.grid(row=0, column=1)
+		return
+
+#build GUI and assign functions to menu and keys
 def main():
 	global master
 	master = tk.Tk()
@@ -21,28 +73,6 @@ def main():
 	tk.Label(master, text="Labor Cost %", background=background, font = font).grid(row=12)
 	tk.Label(master, text="Burden Cost %", background=background, font = font).grid(row=13)
 	tk.Label(master, text="Service Cost %", background=background, font = font).grid(row=14)
-
-	#build GUI
-	menubar = tk.Menu(master)
-	menubar.add_command(label="Update", command=combinedUpdate, font="ISOCPEUR 10")
-	menubar.add_command(label="Recalculate", command=combinedRecalc, font="ISOCPEUR 10")
-	menubar.add_command(label="Reset", command=resetFromMenu, font="ISOCPEUR 10")
-	menubar.add_command(label="Help", command=helpDoc, font="ISOCPEUR 10")
-	menubar.add_command(label="Restart", command=restart, font="ISOCPEUR 10")
-	menubar.add_command(label="Quit", command=master.quit, font="ISOCPEUR 10")
-	master.bind('<Escape>', close)
-	master.bind('<F2>', resetFromMenu)
-	master.bind('<Control-r>', combinedRecalc)
-	master.bind('<Control-u>', combinedUpdate)			
-	master.bind('<Control-h>', helpDoc)
-	master.bind('<Control-R>', combinedRecalc)
-	master.bind('<Control-U>', combinedUpdate)			
-	master.bind('<Control-H>', helpDoc)
-	master.bind('<F5>', restart)
-	master.config(menu=menubar)
-	master.title("Update Quote Rates")
-	master.minsize(width=350, height=100)
-	master.configure(background=background)
 
 	#Entry boxes
 	global e
@@ -65,15 +95,41 @@ def main():
 	e6.grid(row=14, column=1, sticky="NSEW", padx=2, pady=2)
 	e.focus_set()
 
-#connect to the database
-conn = pymssql.connect(
-    host=r"host",
-    user=r"user",
-    password="password",
-    database="database"
-)
+	#menubar, keybindings, and configurations for GUI
+	menubar = tk.Menu(master)
+	menubar.add_command(label="Update", command=combinedUpdate, font="ISOCPEUR 10")
+	menubar.add_command(label="Recalculate", command=combinedRecalc, font="ISOCPEUR 10")
+	menubar.add_command(label="Reset", command=resetFromMenu, font="ISOCPEUR 10")
+	menubar.add_command(label="Help", command=helpDoc, font="ISOCPEUR 10")
+	menubar.add_command(label="Restart", command=restart, font="ISOCPEUR 10")
+	menubar.add_command(label="Quit", command=master.quit, font="ISOCPEUR 10")
+	master.bind('<Escape>', close)
+	master.bind('<F2>', resetFromMenu)
+	master.bind('<Control-r>', combinedRecalc)
+	master.bind('<Control-u>', combinedUpdate)			
+	master.bind('<Control-h>', helpDoc)
+	master.bind('<Control-R>', combinedRecalc)
+	master.bind('<Control-U>', combinedUpdate)			
+	master.bind('<Control-H>', helpDoc)
+	master.bind('<F5>', restart)
+	master.config(menu=menubar)
+	master.title("Update Quote Rates")
+	master.minsize(width=350, height=100)
+	master.configure(background=background)
 
-cursor = conn.cursor()
+#used to pop up a status then run a function
+def combinedUpdate(event=None):
+	updateStatus()
+	master.after(3000, updateRates)
+
+#popup showing status of update
+def updateStatus():
+	global top
+	top = tk.Toplevel(master)
+	top.title('Running')
+	msg = tk.Message(top, text="Updating...                                     ", width=750, font="ISOCPEUR 10")
+	msg.grid(row=0, column=1)
+	master.after(4000, top.destroy)
 
 #function to update rates
 def updateRates():
@@ -138,6 +194,21 @@ def updateRates():
 	except:
 		pass
 
+#used to pop up a status then run a function
+def combinedRecalc(event=None):
+	recalcStatus()
+	master.after(3000, Recalc)
+
+#popup showing status of recalculation
+def recalcStatus():
+    global top
+    top = tk.Toplevel(master)
+    top.title('Running')
+    msg = tk.Message(top, text="Recalculating...                                ", width=750, font="ISOCPEUR 10")
+    msg.grid(row=0, column=1)
+    master.after(4000, top.destroy)
+
+#recalculates based on rates entered
 def Recalc():
 	#make sure the quote number exists in the database 
 	verifySQL = "SELECT ID FROM QUOTE WHERE ID IN (SELECT ID FROM QUOTE WHERE ID = '" + e.get() + "')"
@@ -230,7 +301,18 @@ def Recalc():
 				pass
 	except:
 		pass
- 
+
+#resets screen 
+def resetFromMenu(event=None):
+   e.delete(0, 'end')
+   e2.delete(0, 'end')
+   e3.delete(0, 'end')
+   e4.delete(0, 'end')
+   e5.delete(0, 'end')
+   e6.delete(0, 'end')
+   e.focus_set()
+
+#help box popup
 def helpDoc(event=None):
 	global top
 	top = tk.Toplevel(master)
@@ -238,7 +320,7 @@ def helpDoc(event=None):
 	msg = tk.Message(
 					top, 
 					text="This program updates the rates and recalculates all lines for a quote in Visual.\
-					\n\nTo use:\n\nEnter the exact quote number you wish to update.\n\nEnter percentages as two digit numbers in each box, in the same order you would in the quote in Visual.\
+					\n\nTo use:\n\nEnter the exact quote number you wish to update.\nEnter percentages as two digit numbers in each box, in the same order you would in the quote in Visual.\
 					\n\nYou should always update before recalculating.\
 					\nAfter you enter the correct quote number and the rates you wish to use,\nclick the update button on the menu bar.\
 					\nIf the quote number or any rates are incorrect, you will get an error message.\
@@ -253,86 +335,14 @@ def helpDoc(event=None):
 							)
 	msg.pack()
 
-#status popups
-def updateStatus():
-	global top
-	top = tk.Toplevel(master)
-	top.title('Running')
-	msg = tk.Message(top, text="Updating...                                     ", width=750, font="ISOCPEUR 10")
-	msg.grid(row=0, column=1)
-	master.after(4000, top.destroy)
-
-def recalcStatus():
-    global top
-    top = tk.Toplevel(master)
-    top.title('Running')
-    msg = tk.Message(top, text="Recalculating...                                ", width=750, font="ISOCPEUR 10")
-    msg.grid(row=0, column=1)
-    master.after(4000, top.destroy)
-
-#functions to combine multiple popups
-def combinedUpdate(event=None):
-	updateStatus()
-	master.after(3000, updateRates)
-
-def combinedRecalc(event=None):
-	recalcStatus()
-	master.after(3000, Recalc)
-
- #closes popups
-def close(event=None):
-    top.destroy()
-
-#resets screen 
-def resetFromMenu(event=None):
-   e.delete(0, 'end')
-   e2.delete(0, 'end')
-   e3.delete(0, 'end')
-   e4.delete(0, 'end')
-   e5.delete(0, 'end')
-   e6.delete(0, 'end')
-   e.focus_set()
-
-def logIn(event=None):
-	usernames = []
-	passwords = []
-	if en2.get() in usernames and en3.get() in passwords:
-		main()
-		root.destroy()
-	else:
-		global top
-		top = tk.Toplevel(root)
-		top.title('Error')
-		msg = tk.Message(top, text="Incorrect Username or Password", width=750, font="ISOCPEUR 10")
-		msg.grid(row=0, column=1)
-		return
-
+#brings you back to log in
 def restart(event=None):
 	master.destroy()
 	security()
 
-
-def security():
-	global root
-	root = tk.Tk()
-	background = 'azure2'
-	font = "ISOCPEUR 10"
-	global en2
-	en2 = tk.Entry(root)
-	en2.grid(row=1, column=1, sticky="NSEW", padx=2, pady=2)
-	en2.focus_set()
-	global en3
-	en3 = tk.Entry(root)
-	en3.grid(row=2, column=1, sticky="NSEW", padx=2, pady=2)
-	en3.config(show="*")
-	tk.Label(root, text="User", background=background, font = font).grid(row=1)
-	tk.Label(root, text="Password", background=background, font = font).grid(row=2)
-	tk.Button(root, text='Log in', command=logIn).grid(row=5, column=1)
-	root.bind('<Return>', logIn)
-	root.bind('<Escape>', close)
-	root.title("Log In")
-	root.configure(background=background)
-	root.mainloop()
+#closes popups
+def close(event=None):
+    top.destroy()
 
 if __name__ == "__main__":
 	security()
