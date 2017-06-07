@@ -2,6 +2,7 @@ import datetime
 import pandas as pd
 import pandas.io.sql
 import pymssql
+import _mssql
 import tkinter as tk
 
 now = datetime.datetime.now()
@@ -11,7 +12,7 @@ def main():
 	global master
 	master = tk.Tk()
 	background = 'azure2'
-	font = "Helvetica 10 bold underline"
+	font = "ISOCPEUR 12 underline"
 
 	#Labels for GUI
 	tk.Label(master, text="Quote Number", background=background, font = font).grid(row=0)
@@ -23,12 +24,12 @@ def main():
 
 	#build GUI
 	menubar = tk.Menu(master)
-	menubar.add_command(label="Update", command=combinedUpdate)
-	menubar.add_command(label="Recalculate", command=combinedRecalc)
-	menubar.add_command(label="Reset", command=resetFromMenu)
-	menubar.add_command(label="Help", command=helpDoc)
-	menubar.add_command(label="Restart", command=restart)
-	menubar.add_command(label="Quit", command=master.quit)
+	menubar.add_command(label="Update", command=combinedUpdate, font="ISOCPEUR 10")
+	menubar.add_command(label="Recalculate", command=combinedRecalc, font="ISOCPEUR 10")
+	menubar.add_command(label="Reset", command=resetFromMenu, font="ISOCPEUR 10")
+	menubar.add_command(label="Help", command=helpDoc, font="ISOCPEUR 10")
+	menubar.add_command(label="Restart", command=restart, font="ISOCPEUR 10")
+	menubar.add_command(label="Quit", command=master.quit, font="ISOCPEUR 10")
 	master.bind('<Escape>', close)
 	master.bind('<F2>', resetFromMenu)
 	master.bind('<Control-r>', combinedRecalc)
@@ -37,6 +38,7 @@ def main():
 	master.bind('<Control-R>', combinedRecalc)
 	master.bind('<Control-U>', combinedUpdate)			
 	master.bind('<Control-H>', helpDoc)
+	master.bind('<F5>', restart)
 	master.config(menu=menubar)
 	master.title("Update Quote Rates")
 	master.minsize(width=350, height=100)
@@ -83,20 +85,20 @@ def updateRates():
 		global top
 		top = tk.Toplevel(master)
 		top.title('Error')
-		msg = tk.Message(top, text="Please Check Your Quote Number", width=750)
+		msg = tk.Message(top, text="Please Check Your Quote Number", width=750, font="ISOCPEUR 10")
 		msg.grid(row=0, column=1)
 		return
 	#prevent 2 from being calculated as 20 by forcing all percentages to be two digits long
 	elif len(e2.get()) != 2 or len(e3.get()) != 2 or len(e4.get()) != 2 or len(e5.get()) != 2 or len(e6.get()) != 2:
 			top = tk.Toplevel(master)
 			top.title('Error')
-			msg = tk.Message(top, text="All Percentages Must Be 2 Digits Long", width=750)
+			msg = tk.Message(top, text="All Percentages Must Be 2 Digits Long", width=750, font="ISOCPEUR 10")
 			msg.grid(row=0, column=1)
 			return
 	try:
 		top = tk.Toplevel(master)
 		top.title('Updating')
-		msg = tk.Message(top, text="Rates Successfully Updated         ", width=750)
+		msg = tk.Message(top, text="Rates Successfully Updated         ", width=750, font="ISOCPEUR 10")
 		msg.grid(row=0, column=1)
 		#read in all lines from quote and store them in a dataframe
 		SQL = "SELECT LINE_NO FROM CR_QUOTE_LIN_PRICE WHERE QUOTE_ID = '" + e.get() + "'"
@@ -145,21 +147,21 @@ def Recalc():
 		global top
 		top = tk.Toplevel(master)
 		top.title('Error')
-		msg = tk.Message(top, text="Please Check Your Quote Number", width=750)
+		msg = tk.Message(top, text="Please Check Your Quote Number", width=750, font="ISOCPEUR 10")
 		msg.grid(row=0, column=1)
 		return
 	#prevent 2 from being calculated as 20 by forcing all percentages to be two digits long
 	if len(e2.get()) != 2 or len(e3.get()) != 2 or len(e4.get()) != 2 or len(e5.get()) != 2 or len(e6.get()) != 2:
 		top = tk.Toplevel(master)
 		top.title('Error')
-		msg = tk.Message(top, text="All Percentages Must Be 2 Digits Long", width=750)
+		msg = tk.Message(top, text="All Percentages Must Be 2 Digits Long", width=750, font="ISOCPEUR 10")
 		msg.grid(row=0, column=1)
 		return
 	#get line number and markups for quote
 	try:
 		top = tk.Toplevel(master)
 		top.title('Recalculating')
-		msg = tk.Message(top, text="Successfully Recalculated         ", width=750)
+		msg = tk.Message(top, text="Successfully Recalculated         ", width=750, font="ISOCPEUR 10")
 		msg.grid(row=0, column=1)
 		lineSQL = "SELECT LINE_NO FROM CR_QUOTE_LIN_PRICE WHERE QUOTE_ID = '" + e.get() + "'"
 		matSQL = "SELECT PUR_MATL_PERCENT FROM CR_QUOTE_LIN_PRICE WHERE QUOTE_ID = '" + e.get() + "'"
@@ -236,16 +238,16 @@ def helpDoc(event=None):
 	msg = tk.Message(
 					top, 
 					text="This program updates the rates and recalculates all lines for a quote in Visual.\
-					\n\nTo use:\n\nEnter the exact quote number you wish to update.\n\nEnter percentages as two digit numbers in each box,\
-					\nin the same order you would in the quote in Visual.\n\nYou should always update before recalculating.\
+					\n\nTo use:\n\nEnter the exact quote number you wish to update.\n\nEnter percentages as two digit numbers in each box, in the same order you would in the quote in Visual.\
+					\n\nYou should always update before recalculating.\
 					\nAfter you enter the correct quote number and the rates you wish to use,\nclick the update button on the menu bar.\
-					\nIf the quote number or any rates are incorrect, you will get an error message stating that.\
+					\nIf the quote number or any rates are incorrect, you will get an error message.\
 					\n\nAfter you have successfully updated the rates, do not clear the screen.\nClick the recalculate button.\
 					\nThis program will recalculate based on the rates you have entered here, not based on the rates in Visual,\
 					so it is important that the rates used to update are the same as the rates used to recalculate.\
 					\n\nOnce you have updated and recalculated, you are all done. There is no need to save anything.\
 					\nGo into Visual and refresh the quote.\nThe rates and prices will be updated and rounded to the nearest whole dollar.\
-					\n\nShortcut keys:\n\nCtrl+R: Recalculate\nCtrl+U: Update\nF2: Reset\nEsc: Close Message\nCtrl+H: Help\nAlt+Q: Quit\
+					\n\nShortcut keys:\n\nCtrl+R: Recalculate\nCtrl+U: Update\nF2: Reset\nF5: Restart\nEsc: Close Message\nCtrl+H: Help\nAlt+Q: Quit\
 					\n\nBuilt by Michael Connell using the python programming language \nSouce code and more documentation can be found at https://github.com/MiConnell/Update-Rates\n©" + year,
 					width=750
 							)
@@ -256,7 +258,7 @@ def updateStatus():
 	global top
 	top = tk.Toplevel(master)
 	top.title('Running')
-	msg = tk.Message(top, text="Updating...                                     ", width=750)
+	msg = tk.Message(top, text="Updating...                                     ", width=750, font="ISOCPEUR 10")
 	msg.grid(row=0, column=1)
 	master.after(4000, top.destroy)
 
@@ -264,7 +266,7 @@ def recalcStatus():
     global top
     top = tk.Toplevel(master)
     top.title('Running')
-    msg = tk.Message(top, text="Recalculating...                                ", width=750)
+    msg = tk.Message(top, text="Recalculating...                                ", width=750, font="ISOCPEUR 10")
     msg.grid(row=0, column=1)
     master.after(4000, top.destroy)
 
@@ -301,19 +303,20 @@ def logIn(event=None):
 		global top
 		top = tk.Toplevel(root)
 		top.title('Error')
-		msg = tk.Message(top, text="Incorrect Username or Password", width=750)
+		msg = tk.Message(top, text="Incorrect Username or Password", width=750, font="ISOCPEUR 10")
 		msg.grid(row=0, column=1)
 		return
 
-def restart():
+def restart(event=None):
 	master.destroy()
 	security()
+
 
 def security():
 	global root
 	root = tk.Tk()
 	background = 'azure2'
-	font = "Helvetica 10 bold underline"
+	font = "ISOCPEUR 10"
 	global en2
 	en2 = tk.Entry(root)
 	en2.grid(row=1, column=1, sticky="NSEW", padx=2, pady=2)
@@ -328,6 +331,7 @@ def security():
 	root.bind('<Return>', logIn)
 	root.bind('<Escape>', close)
 	root.title("Log In")
+	root.configure(background=background)
 	root.mainloop()
 
 if __name__ == "__main__":
