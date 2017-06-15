@@ -293,7 +293,7 @@ def Recalc():
 				strRoundFinalCalc = str(roundFinalCalc)
 
 				#update in quote by replacing costs with those calculated above
-				updateCosts = """UPDATE CR_QUOTE_LIN_PRICE SET CALC_UNIT_PRICE = """ + strFinalCalc + """, UNIT_PRICE = """ + strRoundFinalCalc + """WHERE QUOTE_ID = '""" + e.get() + """' 
+				updateCosts = """UPDATE CR_QUOTE_LIN_PRICE SET CALC_UNIT_PRICE = """ + strFinalCalc + """/QTY, UNIT_PRICE = """ + strRoundFinalCalc + """/QTY WHERE QUOTE_ID = '""" + e.get() + """' 
 		 							AND LINE_NO = """ + num
 				cursor.execute(updateCosts)
 				conn.commit()
