@@ -21,7 +21,7 @@ conn = pymssql.connect(
 )
 cursor = conn.cursor()
 
-#build log in popup for security
+#build log in popup for security`
 def security():
 	global root
 	root = tk.Tk()
@@ -44,7 +44,7 @@ def security():
 	root.configure(background=background)
 	root.mainloop()
 
-#pseudo login to prevent unwanted users from entering
+#pseudo login to prevent unwanted users from entering and changing rates
 def logIn(event=None):
 	usernames = []
 	passwords = []
@@ -66,7 +66,7 @@ def main():
 	background = 'azure2'
 	font = "ISOCPEUR 12 underline"
 
-	#Labels for GUI
+	#Labels 
 	tk.Label(master, text="Quote Number", background=background, font = font).grid(row=0)
 	tk.Label(master, text="Purchased Material %", background=background, font = font).grid(row=10)
 	tk.Label(master, text="Fabricated Material %", background=background, font = font).grid(row=11)
@@ -95,7 +95,7 @@ def main():
 	e6.grid(row=14, column=1, sticky="NSEW", padx=2, pady=2)
 	e.focus_set()
 
-	#menubar, keybindings, and configurations for GUI
+	#menubar, keybindings, and configurations
 	menubar = tk.Menu(master)
 	menubar.add_command(label="Update", command=combinedUpdate, font="ISOCPEUR 10")
 	menubar.add_command(label="Recalculate", command=combinedRecalc, font="ISOCPEUR 10")
@@ -153,24 +153,9 @@ def updateRates():
 			return
 	try:
 		top = tk.Toplevel(master)
-		top.title('Updating')
+		top.title('Updating')	
 		msg = tk.Message(top, text="Rates Successfully Updated         ", width=750, font="ISOCPEUR 10")
 		msg.grid(row=0, column=1)
-		#read in all lines from quote and store them in a dataframe
-		SQL = "SELECT LINE_NO FROM CR_QUOTE_LIN_PRICE WHERE QUOTE_ID = '" + e.get() + "'"
-		q = pandas.io.sql.read_sql(SQL, conn)
-		lines = pd.DataFrame(q)
-		#loop through the lines and get all estimated costs
-		for l in lines.values:
-			try:
-				costQuery = """
-				SELECT WORKORDER_LOT_ID, EST_MATERIAL_COST AS MATERIAL, EST_LABOR_COST AS LABOR, 
-				EST_BURDEN_COST AS BURDEN, EST_SERVICE_COST AS SERVICE 
-				FROM REQUIREMENT WHERE WORKORDER_BASE_ID =""" + e.get() + """
-				AND WORKORDER_LOT_ID = """ + str(l)[1:-1] + """GROUP BY WORKORDER_LOT_ID
-				"""
-			except:
-				pass
 		#read in all lines from quote and store them in a dataframe
 		lineSQL = "SELECT LINE_NO FROM CR_QUOTE_LIN_PRICE WHERE QUOTE_ID = '" + e.get() + "'"
 		q = pandas.io.sql.read_sql(lineSQL, conn)
@@ -208,7 +193,7 @@ def recalcStatus():
     msg.grid(row=0, column=1)
     master.after(4000, top.destroy)
 
-#recalculates based on rates entered
+#recalculate based on rates entered
 def Recalc():
 	#make sure the quote number exists in the database 
 	verifySQL = "SELECT ID FROM QUOTE WHERE ID IN (SELECT ID FROM QUOTE WHERE ID = '" + e.get() + "')"
@@ -259,29 +244,29 @@ def Recalc():
 		for l in lines:
 			try:
 				num = str(l)[1:-1]
-				matMarkUpQuery = "SELECT 1." + e2.get() + "*EST_MATERIAL_COST FROM WORK_ORDER WHERE BASE_ID = '" + e.get() + "' AND LOT_ID = '" + num + "'"
+				matMarkUpQuery = "SELECT 1." + e2.get() + "*EST_MATERIAL_COST/DESIRED_QTY FROM WORK_ORDER WHERE BASE_ID = '" + e.get() + "' AND LOT_ID = '" + num + "'"
 				EPMC = str(pandas.io.sql.read_sql(matMarkUpQuery, conn).values).strip('[.]')
 				updateMaterial = float(EPMC)
 				roundMaterial = round(updateMaterial)
 
 				#couldn't find a use for this since we only use purchased materials in our quotes
 
-				# fabMarkUpQuery = "SELECT SUM(EST_MATERIAL_COST) FROM WORK_ORDER WHERE BASE_ID LIKE '%" + e.get() + "%' AND LOT_ID = '" + num + "' GROUP BY LOT_ID"
+				# fabMarkUpQuery = "SELECT SUM(EST_MATERIAL_COST)/DESIRED_QTY FROM WORK_ORDER WHERE BASE_ID LIKE '%" + e.get() + "%' AND LOT_ID = '" + num + "' GROUP BY LOT_ID"
 				# EFMC = str(pandas.io.sql.read_sql(fabMarkUpQuery, conn).head(1).values).strip('[.]')
 				# updateFabricated = float('1.' + e.get()) * float(EPMC)
 				# roundFabricated = round(updateFabricated)
 
-				labMarkUpQuery = "SELECT 1." + e4.get() + "*EST_LABOR_COST FROM WORK_ORDER WHERE BASE_ID = '" + e.get() + "' AND LOT_ID = '" + num + "'"
+				labMarkUpQuery = "SELECT 1." + e4.get() + "*EST_LABOR_COST/DESIRED_QTY FROM WORK_ORDER WHERE BASE_ID = '" + e.get() + "' AND LOT_ID = '" + num + "'"
 				ELC = str(pandas.io.sql.read_sql(labMarkUpQuery, conn).head(1).values).strip('[.]')
 				updateLabor = float(ELC)
 				roundLabor = round(updateLabor)
 
-				burMarkUpQuery = "SELECT 1." + e5.get() + "*EST_BURDEN_COST FROM WORK_ORDER WHERE BASE_ID = '" + e.get() + "' AND LOT_ID = '" + num + "'"
+				burMarkUpQuery = "SELECT 1." + e5.get() + "*EST_BURDEN_COST/DESIRED_QTY FROM WORK_ORDER WHERE BASE_ID = '" + e.get() + "' AND LOT_ID = '" + num + "'"
 				EBC = str(pandas.io.sql.read_sql(burMarkUpQuery, conn).head(1).values).strip('[.]')
 				updateBurden = float(EBC)
 				roundBurden = round(updateBurden)
 
-				serMarkUpQuery = "SELECT 1." + e6.get() + "*EST_SERVICE_COST FROM WORK_ORDER WHERE BASE_ID = '" + e.get() + "' AND LOT_ID = '" + num + "'"
+				serMarkUpQuery = "SELECT 1." + e6.get() + "*EST_SERVICE_COST/DESIRED_QTY FROM WORK_ORDER WHERE BASE_ID = '" + e.get() + "' AND LOT_ID = '" + num + "'"
 				ESC = str(pandas.io.sql.read_sql(serMarkUpQuery, conn).head(1).values).strip('[.]')
 				updateService = float(ESC)
 				roundService = round(updateService)
@@ -293,8 +278,9 @@ def Recalc():
 				strRoundFinalCalc = str(roundFinalCalc)
 
 				#update in quote by replacing costs with those calculated above
-				updateCosts = """UPDATE CR_QUOTE_LIN_PRICE SET CALC_UNIT_PRICE = """ + strFinalCalc + """/QTY, UNIT_PRICE = """ + strRoundFinalCalc + """/QTY WHERE QUOTE_ID = '""" + e.get() + """' 
+				updateCosts = """UPDATE CR_QUOTE_LIN_PRICE SET CALC_UNIT_PRICE = """ + strFinalCalc + """, UNIT_PRICE = """ + strRoundFinalCalc + """ WHERE QUOTE_ID = '""" + e.get() + """' 
 		 							AND LINE_NO = """ + num
+				print(num, strRoundFinalCalc)
 				cursor.execute(updateCosts)
 				conn.commit()
 			except:
@@ -322,7 +308,7 @@ def helpDoc(event=None):
 					text="This program updates the rates and recalculates all lines for a quote in Visual.\
 					\n\nTo use:\n\nEnter the exact quote number you wish to update.\nEnter percentages as two digit numbers in each box, in the same order you would in the quote in Visual.\
 					\n\nYou should always update before recalculating.\
-					\nAfter you enter the correct quote number and the rates you wish to use,\nclick the update button on the menu bar.\
+					\nAfter you enter the correct quote number and the rates you wish to use, click the update button on the menu bar.\
 					\nIf the quote number or any rates are incorrect, you will get an error message.\
 					\n\nAfter you have successfully updated the rates, do not clear the screen.\nClick the recalculate button.\
 					\nThis program will recalculate based on the rates you have entered here, not based on the rates in Visual,\
@@ -335,7 +321,7 @@ def helpDoc(event=None):
 							)
 	msg.pack()
 
-#brings you back to log in
+#brings user back to log in
 def restart(event=None):
 	master.destroy()
 	security()
@@ -344,5 +330,6 @@ def restart(event=None):
 def close(event=None):
     top.destroy()
 
+#starts program
 if __name__ == "__main__":
 	security()
