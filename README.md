@@ -5,9 +5,15 @@ This program updates the rates and recalculates all lines for a quote in Visual.
 
 To use:
 
+The user must log in first.
+
+![Log In](https://i.imgur.com/HNwoK0v.png)
+
 Enter the exact quote number you wish to update.
 Enter percentages as two digit numbers in each box, in the same order you would in the quote in Visual. 
 You should always update before recalculating.
+
+![GUI](https://i.imgur.com/EuaIAJy.png)
 
 After you enter the correct quote number and the rates you wish to use, click the update button on the menu bar.
 If the quote number or any rates are incorrect, you will get an error message stating that.
