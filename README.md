@@ -24,7 +24,9 @@ Click the recalculate button.
 This program will recalculate based on the rates you have entered here, not based on the rates in Visual, so it is important that the rates used to update are the same as the rates used to recalculate.
 
 Once you have updated and recalculated, you are all done. There is no need to save anything.
-Go into Visual and refresh the quote.\nThe rates and prices will be updated and rounded to the nearest whole dollar.
+Go into Visual and refresh the quote.The rates and prices will be updated and rounded to the nearest whole dollar.
+
+This saves the time of going line by line and changing rates and recalculating for our estimators. 
 
 Shortcut keys:
 
